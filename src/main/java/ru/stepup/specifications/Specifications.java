@@ -1,4 +1,4 @@
-package utils;
+package ru.stepup.specifications;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;

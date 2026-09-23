@@ -1,4 +1,4 @@
-package data;
+package ru.stepup.data;
 
 import java.util.Random;
 

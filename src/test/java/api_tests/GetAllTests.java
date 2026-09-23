@@ -5,10 +5,10 @@ import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import utils.Specifications;
+import ru.stepup.specifications.Specifications;
 
-import static data.RandomData.createUniqueProductName;
-import static data.RandomData.randomInt;
+import static ru.stepup.data.RandomData.createUniqueProductName;
+import static ru.stepup.data.RandomData.randomInt;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;

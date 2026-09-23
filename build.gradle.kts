@@ -11,8 +11,10 @@ repositories {
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    //implementation("org.junit.jupiter:junit-jupiter")
+    implementation("org.junit.jupiter:junit-jupiter:6.1.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.1.3")
+    implementation("org.junit.platform:junit-platform-launcher")
     implementation("io.rest-assured:rest-assured:5.5.6")
     implementation("org.assertj:assertj-core:3.27.7")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.22.1")

@@ -1,4 +1,4 @@
-package ru.stepup;
+package ru.stepup.assertions;
 
 import io.restassured.response.Response;
 import org.assertj.core.api.AbstractAssert;
