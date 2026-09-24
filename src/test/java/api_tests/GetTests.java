@@ -70,7 +70,7 @@ public class GetTests {
     void getStatusCode200ForGet() {
         Response response = given()
                 .spec(requestSpecGet)
-                .pathParam("id", 10)
+                .pathParam("id", id)
                 //.pathParam("id",id)
                 .when()
                 .get();

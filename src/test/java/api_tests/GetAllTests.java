@@ -3,8 +3,7 @@ package api_tests;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import ru.stepup.specifications.Specifications;
 
 import static ru.stepup.data.RandomData.createUniqueProductName;
@@ -18,9 +17,55 @@ import static org.hamcrest.Matchers.*;
 @Tag("ApiTest")
 public class GetAllTests {
 
-    private static String productName = createUniqueProductName();
-    private static int productPrice = randomInt(1, 100);
-    RequestSpecification requestSpecGetAll = new Specifications().requestSpecGetAll();
+    private static RequestSpecification requestSpecPost;
+    private static RequestSpecification requestSpecDelete;
+    private static RequestSpecification requestSpecGetAll;
+    private String productName;
+    private int productPrice;
+    private Integer id;
+
+    @BeforeAll
+    static void beforeAll() {
+        requestSpecPost = new Specifications().requestSpecPost();
+        requestSpecDelete = new Specifications().requestSpecDelete();
+        requestSpecGetAll = new Specifications().requestSpecGetAll();
+    }
+
+    @BeforeEach
+    void beforeEach(){
+        productName = createUniqueProductName();
+        productPrice = randomInt(1, 100);
+        System.out.println(String.format("!!! Создаем переменные для теста productName = %s,  productPrice = %s",
+                productName, productPrice));
+
+        id = given()
+                .spec(requestSpecPost)
+                .body(new DeleteTests.RequestCreate(productName, productPrice))
+                .when()
+                .post()
+                .then()
+                .extract()
+                .body()
+                .jsonPath()
+                .getObject("data.id", Integer.class);
+
+        System.out.println("!!! Создаем товар с id = " + id);
+    }
+
+    @AfterEach
+    void afterEach() {
+        if (id != null) {
+            System.out.println("!!! Удаляем товар с id = " + id);
+            given()
+                    .spec(requestSpecDelete)
+                    .pathParam("id", id)
+                    .when()
+                    .delete();
+            id = null;
+        } else {
+            System.out.println("!!! Товар не создавался, нечего удалять");
+        }
+    }
 
     @Test
     @Description("Проверка статус кода 200 и тело ответа пустое через given().when().then()")
@@ -34,7 +79,7 @@ public class GetAllTests {
                 .get("/goods/list")
                 .then()
                 .statusCode(200)
-                .body("goods", hasSize(0))
+                .body("goods", hasSize(1))
                 .log().all();
     }
 
@@ -43,14 +88,14 @@ public class GetAllTests {
     void statusCode400AndBodyIsNullTest() {
         given()
                 .spec(requestSpecGetAll)
-                .queryParam("page", 0)
+                .queryParam("page", 1)
                 .queryParam("size", 0)
                 .when()
                 .get()
                 .then()
                 .statusCode(400)
-                //.body(equalTo("Page size must not be less than one"));
-                .body(nullValue());
+                .body(equalTo("Page size must not be less than one"));
+                //.body(nullValue());
     }
 
     @Test
@@ -58,8 +103,8 @@ public class GetAllTests {
     void getProductWithRestAssured() {
         given()
                 .spec(requestSpecGetAll)
-                .queryParam("page", 1)
-                .queryParam("size", 10)
+                .queryParam("page", 3)
+                .queryParam("size", 3)
                 .when()
                 .get()
                 .then()
@@ -74,8 +119,8 @@ public class GetAllTests {
 
         Response response = given()
                 .spec(requestSpecGetAll)
-                .queryParam("page", 1)
-                .queryParam("size", 10)
+                .queryParam("page", 3)
+                .queryParam("size", 3)
                 .when()
                 .get();
 
