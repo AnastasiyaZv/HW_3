@@ -18,6 +18,8 @@ dependencies {
     implementation("io.rest-assured:rest-assured:5.5.6")
     implementation("org.assertj:assertj-core:3.27.7")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.22.1")
+    implementation("com.codeborne:selenide:7.18.1")
+    implementation("org.seleniumhq.selenium:selenium-java:4.46.0")
 }
 
 
