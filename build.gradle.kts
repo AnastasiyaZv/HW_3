@@ -26,22 +26,28 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-tasks.register<Test>("firstTask") {
+tasks.register<Test>("Task_1") {
     group = "autotests"
-    description = "Запуск тестов с пометкой ЛЕКЦИЯ"
+    description = "Запуск тестов с пометкой Selenium для задачи 1"
     useJUnitPlatform{
-        includeTags("Lesson")
+        includeTags("Selenium")
     }
 }
 
-tasks.register<Test>("secondTask") {
+tasks.register<Test>("Task_2") {
     group = "autotests"
-    description = "Запускает все API тесты"
+    description = "Запуск тестов с пометкой Task_2 для задачи 2"
     useJUnitPlatform{
-        includeTags("ApiTest")
-    }
-    doLast {
-        println("Test run is over")
+        includeTags("Task_2")
     }
 }
-defaultTasks("secondTask")
+
+tasks.register<Test>("Task_3") {
+    group = "autotests"
+    description = "Запуск тестов с пометкой Task_3 для задачи 3"
+    useJUnitPlatform{
+        includeTags("Task_3")
+    }
+}
+
+defaultTasks("test")

@@ -14,8 +14,8 @@ public class Specifications {
     private static final String PATH_DELETE = "/goods/{id}";
     private static final String PATH_GET = "/goods/{id}";
     private static final String PATH_PATCH = "/goods/{id}";
-    private static final String LOGIN = System.getenv("login");
-    private static final String PASS = System.getenv("pass");
+    private static final String LOGIN = "admin";
+    private static final String PASS = "secret123";
 
 
     public RequestSpecification requestSpec(String uri, String path){
