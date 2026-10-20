@@ -1,6 +1,5 @@
 package ui_selenide_tests;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import io.restassured.response.Response;
@@ -152,7 +151,7 @@ public class AdminPageTests {
         //редактирование товара
         $(String.format("input[id='nm-%s']", id)).setValue("Product");
         $(String.format("input[id='pr-%s']", id)).setValue("111");
-        $(String.format("button[data-action='update'][data-id='%s']",id)).click();
+        $(String.format("button[data-action='update'][data-id='%s']", id)).click();
         //проверка изменений
         $(String.format("input[id='nm-%s']", id))
                 .as("Имя не изменено")
@@ -161,6 +160,6 @@ public class AdminPageTests {
         $(String.format("input[id='pr-%s']", id))
                 .as("Цена не изменена")
                 .shouldHave(value("111"));
-        //TODO добавить переход на витрину/список и проверку обновлённого товара именно там
+
     }
 }

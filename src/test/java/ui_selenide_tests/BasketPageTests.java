@@ -296,7 +296,7 @@ public class BasketPageTests {
     @Tag("Task_4")
     @Test
     @Description("Удалить добавленный элемент из корзины и проверить, что он там больше не отображается")
-    void deleteProductFromBasket(){
+    void deleteProductFromBasket() {
         //логин через админа
         loginAsAdmin();
         //проверка, что находимся на странице админа
@@ -326,9 +326,9 @@ public class BasketPageTests {
                 .as("Открыта не страница корзины")
                 .shouldHave(exactText("Корзина SmartShop"));
         //удаляем товар из корзины
-        $(String.format("div[id='cart-item-%d']>button[data-action='remove']",idProduct)).click();
+        $(String.format("div[id='cart-item-%d']>button[data-action='remove']", idProduct)).click();
         //проверяем, что удаленный товар не отображается в корзине
-        $(String.format("div[id='cart-item-%d']",idProduct))
+        $(String.format("div[id='cart-item-%d']", idProduct))
                 .as("Товар не должен отображаться")
                 .shouldNot(exist);
     }
@@ -336,7 +336,7 @@ public class BasketPageTests {
     @Tag("Task_4")
     @Test
     @Description("Перетащить элемент в корзину с помощью Drag-and-Drop")
-    void productDnD(){
+    void productDnD() {
         //логин через админа
         loginAsAdmin();
         //проверка, что находимся на странице админа
