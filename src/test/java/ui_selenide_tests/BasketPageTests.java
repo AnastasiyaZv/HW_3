@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.Random;
 
 import static com.codeborne.selenide.CollectionCondition.texts;
-import static com.codeborne.selenide.Condition.exactText;
-import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
 
@@ -204,6 +204,11 @@ public class BasketPageTests {
         //проверяем окно алерта и выводим текст алерта
         Alert alert = Selenide.switchTo().alert();
         System.out.println(alert.getText());
+        assertThat(alert.getText())
+                .as("Окно алерта не появилось")
+                .contains("Денег не хватает!");
+        alert.accept();
+
     }
 
     @Tag("Task_3")
@@ -288,4 +293,69 @@ public class BasketPageTests {
                 .shouldHave(exactText(String.valueOf(sum)));
     }
 
+    @Tag("Task_4")
+    @Test
+    @Description("Удалить добавленный элемент из корзины и проверить, что он там больше не отображается")
+    void deleteProductFromBasket(){
+        //логин через админа
+        loginAsAdmin();
+        //проверка, что находимся на странице админа
+        $("h1")
+                .as("Открыта не страница администрирования")
+                .shouldHave(Condition.text("SmartShop Admin"));
+        //добавление нового товара
+        addProducts(3);
+        //переходим на витрину
+        $("a[href='/']").click();
+        //проверка, что находимся на витрине
+        $("h1[id='main-title']")
+                .as("Открыта не страница витрины")
+                .shouldHave(Condition.text("SmartShop"));
+        //добавляем 3 товара в корзину и считаем общую сумму добавленных товаров
+        for (String element : idProducts) {
+            $x(String.format("//button[@data-action='add-to-cart' and @data-id='%s']", element)).click();
+        }
+        //проверяем, что в корзине 3 товара
+        $("span[id='cart-count']")
+                .as("Товар в корзину не добавлен")
+                .shouldHave(text("3"));
+        //переходим в корзину
+        $("button[id='open-cart-btn']").click();
+        //проверка, что находимся в корзине
+        $("h2")
+                .as("Открыта не страница корзины")
+                .shouldHave(exactText("Корзина SmartShop"));
+        //удаляем товар из корзины
+        $(String.format("div[id='cart-item-%d']>button[data-action='remove']",idProduct)).click();
+        //проверяем, что удаленный товар не отображается в корзине
+        $(String.format("div[id='cart-item-%d']",idProduct))
+                .as("Товар не должен отображаться")
+                .shouldNot(exist);
+    }
+
+    @Tag("Task_4")
+    @Test
+    @Description("Перетащить элемент в корзину с помощью Drag-and-Drop")
+    void productDnD(){
+        //логин через админа
+        loginAsAdmin();
+        //проверка, что находимся на странице админа
+        $("h1")
+                .as("Открыта не страница администрирования")
+                .shouldHave(Condition.text("SmartShop Admin"));
+        // добавляем товары
+        addProducts(1);
+        //переходим на витрину
+        $("a[href='/']").click();
+        //проверка, что находимся на витрине
+        $("h1[id='main-title']")
+                .as("Открыта не страница витрины")
+                .shouldHave(Condition.text("SmartShop"));
+        //добавляем товар в корзину с помощью Drag-and-Drop
+        $(String.format("div[id='card-%d']", idProduct)).dragAndDrop(DragAndDropOptions.to($("button[id='open-cart-btn']")));
+        //проверяем, что товар добавлен
+        $("span[id='cart-count']")
+                .as("Товар в корзину не добавлен")
+                .shouldHave(text("1"));
+    }
 }

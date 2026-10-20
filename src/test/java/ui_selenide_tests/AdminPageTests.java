@@ -161,6 +161,6 @@ public class AdminPageTests {
         $(String.format("input[id='pr-%s']", id))
                 .as("Цена не изменена")
                 .shouldHave(value("111"));
-
+        //TODO добавить переход на витрину/список и проверку обновлённого товара именно там
     }
 }
