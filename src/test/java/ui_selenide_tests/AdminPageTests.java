@@ -11,6 +11,8 @@ import ru.stepup.specifications.Specifications;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static io.restassured.RestAssured.given;
+import static ru.stepup.config.Config.BASE_CONFIG;
+import static ru.stepup.config.Config.UI_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
 
@@ -24,8 +26,8 @@ public class AdminPageTests {
 
     @BeforeAll
     public static void beforeAll() {
-        Configuration.baseUrl = "http://localhost:8080";
-        Configuration.timeout = 6000;
+        Configuration.baseUrl = BASE_CONFIG.baseUrl();
+        Configuration.timeout = UI_CONFIG.timeout();
 
         requestSpecDelete = new Specifications().requestSpecDelete();
     }
@@ -33,6 +35,13 @@ public class AdminPageTests {
     @BeforeEach
     public void beforeEach() {
         open("/");
+
+        System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
+        System.out.println("Browser timeout: " + UI_CONFIG.timeout());
+        System.out.println("Start productName: " + UI_CONFIG.productName());
+        System.out.println("Start productPrice: " + UI_CONFIG.productPrice());
+        System.out.println("Start productName: " + UI_CONFIG.invalidLogin());
+        System.out.println("Start productPrice: " + UI_CONFIG.invalidPassword());
 
         //создание параметров для нового товара
         productName = createUniqueProductName();
@@ -59,8 +68,8 @@ public class AdminPageTests {
     private void loginAsAdmin() {
         //логин через админа
         $("a[href='/admin']").click();
-        $("input[id='username']").sendKeys("admin");
-        $("input[id='password']").sendKeys("secret123");
+        $("input[id='username']").sendKeys(BASE_CONFIG.adminLogin());
+        $("input[id='password']").sendKeys(BASE_CONFIG.adminPassword());
         $("button[class='primary']").click();
     }
 
@@ -99,8 +108,8 @@ public class AdminPageTests {
     void invalidAuth() {
         //логин через админа
         $("a[href='/admin']").click();
-        $("input[id='username']").sendKeys("admin1");
-        $("input[id='password']").sendKeys("secret123");
+        $("input[id='username']").sendKeys(UI_CONFIG.invalidLogin());
+        $("input[id='password']").sendKeys(UI_CONFIG.invalidPassword());
         $("button[class='primary']").click();
         //проверяем, что залогиниться не получилось
         $("div[class='alert alert-danger']")
@@ -149,17 +158,16 @@ public class AdminPageTests {
         id = $x(String.format("//tr[td/input[@value='%s']]/td[1]", productName)).getText();
         System.out.println("id = " + id);
         //редактирование товара
-        $(String.format("input[id='nm-%s']", id)).setValue("Product");
-        $(String.format("input[id='pr-%s']", id)).setValue("111");
+        $(String.format("input[id='nm-%s']", id)).setValue(UI_CONFIG.productName());
+        $(String.format("input[id='pr-%s']", id)).setValue(UI_CONFIG.productPrice());
         $(String.format("button[data-action='update'][data-id='%s']", id)).click();
         //проверка изменений
         $(String.format("input[id='nm-%s']", id))
                 .as("Имя не изменено")
-                .shouldHave(value("Product"));
+                .shouldHave(value(UI_CONFIG.productName()));
 
         $(String.format("input[id='pr-%s']", id))
                 .as("Цена не изменена")
-                .shouldHave(value("111"));
-
+                .shouldHave(value(UI_CONFIG.productPrice()));
     }
 }

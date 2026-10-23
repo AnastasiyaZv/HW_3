@@ -7,9 +7,10 @@ import org.junit.jupiter.api.*;
 import ru.stepup.assertions.BaseApiAssert;
 import ru.stepup.specifications.Specifications;
 
+import static io.restassured.RestAssured.given;
+import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
-import static io.restassured.RestAssured.given;
 
 @Tag("ApiTest")
 public class GetTests {
@@ -32,6 +33,9 @@ public class GetTests {
     void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
+
+        System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
+
         System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
                 productName, productPrice);
 

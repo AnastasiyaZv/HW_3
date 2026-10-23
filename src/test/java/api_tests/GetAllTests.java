@@ -6,11 +6,12 @@ import jdk.jfr.Description;
 import org.junit.jupiter.api.*;
 import ru.stepup.specifications.Specifications;
 
-import static ru.stepup.data.RandomData.createUniqueProductName;
-import static ru.stepup.data.RandomData.randomInt;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static ru.stepup.config.Config.BASE_CONFIG;
+import static ru.stepup.data.RandomData.createUniqueProductName;
+import static ru.stepup.data.RandomData.randomInt;
 
 
 @Tag("Lesson")
@@ -32,11 +33,14 @@ public class GetAllTests {
     }
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
-        System.out.println(String.format("!!! Создаем переменные для теста productName = %s,  productPrice = %s",
-                productName, productPrice));
+
+        System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
+
+        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
+                productName, productPrice);
 
         id = given()
                 .spec(requestSpecPost)
@@ -95,7 +99,7 @@ public class GetAllTests {
                 .then()
                 .statusCode(400)
                 .body(equalTo("Page size must not be less than one"));
-                //.body(nullValue());
+        //.body(nullValue());
     }
 
     @Test

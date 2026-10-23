@@ -7,13 +7,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import ru.stepup.assertions.BaseApiAssert;
 import ru.stepup.specifications.Specifications;
 
+import static io.restassured.RestAssured.given;
+import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
-import static io.restassured.RestAssured.given;
 
 @Tag("ApiTest")
 public class DeleteTests {
@@ -25,17 +25,20 @@ public class DeleteTests {
     private Integer id;
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         requestSpecDelete = new Specifications().requestSpecDelete();
         requestSpecPost = new Specifications().requestSpecPost();
     }
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
-        System.out.println(String.format("!!! Создаем переменные для теста productName = %s,  productPrice = %s",
-                productName, productPrice));
+
+        System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
+
+        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
+                productName, productPrice);
 
         id = given()
                 .spec(requestSpecPost)
@@ -81,6 +84,7 @@ public class DeleteTests {
                 .assertThat(response)
                 .hasStatusCode(404);
     }
+
     public record RequestCreate(String name, Integer price) {
     }
 }

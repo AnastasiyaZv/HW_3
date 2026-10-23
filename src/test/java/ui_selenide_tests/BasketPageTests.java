@@ -18,10 +18,13 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static ru.stepup.config.Config.BASE_CONFIG;
+import static ru.stepup.config.Config.UI_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
 
 public class BasketPageTests {
+
     private static RequestSpecification requestSpecPost;
     private static RequestSpecification requestSpecDelete;
     List<String> idProducts = new ArrayList<>();
@@ -32,8 +35,8 @@ public class BasketPageTests {
 
     @BeforeAll
     public static void beforeAll() {
-        Configuration.baseUrl = "http://localhost:8080";
-        Configuration.timeout = 6000;
+        Configuration.baseUrl = BASE_CONFIG.baseUrl();
+        Configuration.timeout = UI_CONFIG.timeout();
 
         requestSpecPost = new Specifications().requestSpecPost();
         requestSpecDelete = new Specifications().requestSpecDelete();
@@ -42,6 +45,11 @@ public class BasketPageTests {
     @BeforeEach
     public void beforeEach() {
         open("/");
+
+        System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
+        System.out.println("Browser timeout: " + UI_CONFIG.timeout());
+        System.out.println("Start productName: " + UI_CONFIG.productName());
+        System.out.println("Start productPrice: " + UI_CONFIG.productPrice());
     }
 
     @AfterEach
@@ -73,8 +81,8 @@ public class BasketPageTests {
     private void loginAsAdmin() {
         //логин через админа
         $("a[href='/admin']").click();
-        $("input[id='username']").sendKeys("admin");
-        $("input[id='password']").sendKeys("secret123");
+        $("input[id='username']").sendKeys(BASE_CONFIG.adminLogin());
+        $("input[id='password']").sendKeys(BASE_CONFIG.adminPassword());
         $("button[class='primary']").click();
     }
 
@@ -169,11 +177,11 @@ public class BasketPageTests {
                 .as("Открыта не страница администрирования")
                 .shouldHave(exactText("SmartShop Admin"));
         //добавление нового товара
-        $("input[id='n-name']").sendKeys("Apple");
-        $("input[id='n-price']").sendKeys("101");
+        $("input[id='n-name']").sendKeys(UI_CONFIG.productName());
+        $("input[id='n-price']").sendKeys(UI_CONFIG.productPrice());
         $("button[id='add-btn']").click();
         //получим id для удаления
-        id = $x("//tr[td/input[@value='Apple']]/td[1]").getText();
+        id = $x(String.format("//tr[td/input[@value='%s']]/td[1]", UI_CONFIG.productName())).getText();
         System.out.println("id = " + id);
         //проверка, что товар успешно добавлен
         $("div[class='toast']")
@@ -187,7 +195,7 @@ public class BasketPageTests {
                 .shouldHave(text("SmartShop"));
         //добавляем 3 раза товар в корзину
         for (int i = 0; i < 3; i++) {
-            $x("//button[@data-action='add-to-cart' and @data-name='Apple']").click();
+            $x(String.format("//button[@data-action='add-to-cart' and @data-name='%s']", UI_CONFIG.productName())).click();
         }
         //проверяем что в корзине 3 позиции одного товара
         $("span[id='cart-count']")

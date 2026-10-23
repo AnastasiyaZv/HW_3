@@ -7,9 +7,11 @@ import org.junit.jupiter.api.*;
 import ru.stepup.assertions.BaseApiAssert;
 import ru.stepup.specifications.Specifications;
 
+import static io.restassured.RestAssured.given;
+import static ru.stepup.config.Config.API_CONFIG;
+import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
-import static io.restassured.RestAssured.given;
 
 @Tag("ApiTest")
 public class PatchTests {
@@ -21,18 +23,23 @@ public class PatchTests {
     private Integer id;
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         requestSpecPatch = new Specifications().requestSpecPath();
         requestSpecPost = new Specifications().requestSpecPost();
         requestSpecDelete = new Specifications().requestSpecDelete();
     }
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
-        System.out.println(String.format("!!! Создаем переменные для теста productName = %s,  productPrice = %s",
-                productName, productPrice));
+
+        System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
+        System.out.println("Start productName: " + API_CONFIG.productName());
+        System.out.println("Start productPrice: " + API_CONFIG.productPrice());
+
+        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
+                productName, productPrice);
 
         id = given()
                 .spec(requestSpecPost)
@@ -66,11 +73,11 @@ public class PatchTests {
     @Tag("Positive")
     @Test
     @Description("Проверка статус кода 200")
-    void getStatusCode200ForPatch(){
+    void getStatusCode200ForPatch() {
         Response response = given()
                 .spec(requestSpecPatch)
                 .pathParam("id", id)
-                .body(new RequestUpdate("Anything", 100))
+                .body(new RequestUpdate(API_CONFIG.productName(), API_CONFIG.productPrice()))
                 .when()
                 .patch();
 
@@ -82,11 +89,11 @@ public class PatchTests {
     @Tag("Negative")
     @Test
     @Description("Проверка статус кода 400")
-    void getStatusCode400ForPatch(){
+    void getStatusCode400ForPatch() {
         Response response = given()
                 .spec(requestSpecPatch)
-                .pathParam("id",id)
-                .body(new RequestUpdate(null, 100))
+                .pathParam("id", id)
+                .body(new RequestUpdate(null, API_CONFIG.productPrice()))
                 .when()
                 .patch();
 
@@ -98,11 +105,11 @@ public class PatchTests {
     @Tag("Negative")
     @Test
     @Description("Проверка статус кода 404")
-    void getStatusCode404ForPatch(){
+    void getStatusCode404ForPatch() {
         Response response = given()
                 .spec(requestSpecPatch)
-                .pathParam("id",0)
-                .body(new RequestUpdate("Any", 100))
+                .pathParam("id", 0)
+                .body(new RequestUpdate(API_CONFIG.productName(), API_CONFIG.productPrice()))
                 .when()
                 .patch();
 
@@ -113,6 +120,7 @@ public class PatchTests {
 
     public record RequestCreate(String name, Integer price) {
     }
+
     public record RequestUpdate(String name, Integer price) {
     }
 }

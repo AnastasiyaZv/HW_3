@@ -19,6 +19,9 @@ dependencies {
 
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.22.1")
     testImplementation("com.codeborne:selenide:7.18.1")
+
+    //конфигурация
+    implementation("org.aeonbits.owner:owner:1.0.12")
 }
 
 tasks.test {
