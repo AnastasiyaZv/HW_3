@@ -4,21 +4,28 @@ import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import jdk.jfr.Description;
 import org.junit.jupiter.api.*;
+import ru.stepup.pages.AdminPage;
+import ru.stepup.pages.MainPage;
+import ru.stepup.pages.SignInPage;
 import ru.stepup.specifications.Specifications;
+import ru.stepup.tools.PrintConfig;
 
-import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.open;
 import static io.restassured.RestAssured.given;
 import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.config.Config.UI_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
 
+@Tag("Task_5")
 public class AdminPageTests {
 
     private static RequestSpecification requestSpecDelete;
+
+    private final AdminPage adminPage = new AdminPage();
+    private final MainPage mainPage = new MainPage();
+    private final SignInPage signInPage = new SignInPage();
 
     private String productName;
     private int productPrice;
@@ -35,14 +42,8 @@ public class AdminPageTests {
     @BeforeEach
     public void beforeEach() {
         open("/");
-
-        System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
-        System.out.println("Browser timeout: " + UI_CONFIG.timeout());
-        System.out.println("Start productName: " + UI_CONFIG.productName());
-        System.out.println("Start productPrice: " + UI_CONFIG.productPrice());
-        System.out.println("Start productName: " + UI_CONFIG.invalidLogin());
-        System.out.println("Start productPrice: " + UI_CONFIG.invalidPassword());
-
+        //печать параметров конфигурации
+        new PrintConfig().printConfig();
         //создание параметров для нового товара
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
@@ -52,8 +53,9 @@ public class AdminPageTests {
 
     @AfterEach
     void afterEach() {
+        System.out.println("!!! id = " + id);
+        //удаление созданного товара
         if (id != null) {
-            //удаление созданного товара
             Response response = given()
                     .spec(requestSpecDelete)
                     .pathParam("id", id)
@@ -65,109 +67,100 @@ public class AdminPageTests {
         Selenide.closeWebDriver();
     }
 
-    private void loginAsAdmin() {
-        //логин через админа
-        $("a[href='/admin']").click();
-        $("input[id='username']").sendKeys(BASE_CONFIG.adminLogin());
-        $("input[id='password']").sendKeys(BASE_CONFIG.adminPassword());
-        $("button[class='primary']").click();
-    }
-
     @Tag("Task_2")
     @Test
-    @Description("Добавить товар через админку, выйти на витрину и проверить, что товар отображается")
+    @DisplayName("Добавить товар через админку, выйти на витрину и проверить, что товар отображается")
     void addProduct() {
-        //логирование через админа
-        loginAsAdmin();
-        //проверка, что находимся на странице админа
-        $("h1")
-                .as("открыта не страница администрирования")
-                .shouldHave(exactText("SmartShop Admin"));
-        //добавление нового товара
-        $("input[id='n-name']").sendKeys(productName);
-        $("input[id='n-price']").sendKeys(String.valueOf(productPrice));
-        $("button[id='add-btn']").click();
-        //получим id для удаления
-        id = $x(String.format("//tr[td/input[@value='%s']]/td[1]", productName)).getText();
-        System.out.println("id = " + id);
-        //переходим на витрину
-        $("a[href='/']").click();
-        //проверка, что находимся на витрине
-        $("h1[id='main-title']")
-                .as("Открыта не страница витрины")
-                .shouldHave(text("SmartShop"));
-        //проверяем, что товар отображается
-        $(String.format("div[data-name='%s']", productName))
-                .as("Добавленный товар не найден на витрине")
-                .shouldBe(visible);
+        mainPage
+                .check()
+                .hasHeaderMainPage("SmartShop")
+                .page()
+                .goToSignInPage();
+        signInPage
+                .hasHeader("Please sign in")
+                .authAdmin(BASE_CONFIG.adminLogin(), BASE_CONFIG.adminPassword());
+        adminPage
+                .check()
+                .hasHeader("SmartShop Admin");
+        id = adminPage
+                .createNewProduct(productName, String.valueOf(productPrice));
+        adminPage
+                .check()
+                .hasAddProduct(productName)
+                .page()
+                .goToMainPage();
+        mainPage
+                .check()
+                .hasHeaderMainPage("SmartShop")
+                .productIsVisible(productName);
     }
 
     @Tag("Task_2")
     @Test
-    @Description("Попытаться войти в админку с неверным логином и паролем.")
+    @DisplayName("Попытаться войти в админку с неверным логином и паролем.")
     void invalidAuth() {
-        //логин через админа
-        $("a[href='/admin']").click();
-        $("input[id='username']").sendKeys(UI_CONFIG.invalidLogin());
-        $("input[id='password']").sendKeys(UI_CONFIG.invalidPassword());
-        $("button[class='primary']").click();
-        //проверяем, что залогиниться не получилось
-        $("div[class='alert alert-danger']")
-                .as("Залогинились под админом")
-                .shouldHave(exactText("Неверные учетные данные пользователя"));
+        mainPage
+                .check()
+                .hasHeaderMainPage("SmartShop")
+                .page()
+                .goToSignInPage();
+        signInPage
+                .hasHeader("Please sign in")
+                .authAdmin(UI_CONFIG.invalidLogin(), UI_CONFIG.invalidPassword())
+                .assertNotAuth();
     }
 
     @Tag("Task_3")
     @Test
-    @Description("Войти в админку и добавить товар. Проверить уведомление после добавления товара.")
+    @DisplayName("Войти в админку и добавить товар. Проверить уведомление после добавления товара.")
     void messageAfterAddProduct() {
-        //логирование через админа
-        loginAsAdmin();
-        //проверка, что находимся на странице админа
-        $("h1")
-                .as("открыта не страница администрирования")
-                .shouldHave(exactText("SmartShop Admin"));
-        //добавление нового товара
-        $("input[id='n-name']").sendKeys(productName);
-        $("input[id='n-price']").sendKeys(String.valueOf(productPrice));
-        $("button[id='add-btn']").click();
-        //получим id для удаления
-        id = $x(String.format("//tr[td/input[@value='%s']]/td[1]", productName)).getText();
-        System.out.println("id = " + id);
-        //проверка, что товар успешно добавлен
-        $("div[class='toast']")
-                .as("Товар не добавлен")
-                .shouldHave(exactText("Товар успешно добавлен!"));
+        mainPage
+                .check()
+                .hasHeaderMainPage("SmartShop")
+                .page()
+                .goToSignInPage();
+        signInPage
+                .hasHeader("Please sign in")
+                .authAdmin(BASE_CONFIG.adminLogin(), BASE_CONFIG.adminPassword());
+        adminPage
+                .check()
+                .hasHeader("SmartShop Admin");
+        id = adminPage
+                .createNewProduct(productName, String.valueOf(productPrice));
+        adminPage
+                .check()
+                .hasAddProduct(productName)
+                .hasMessageCreateProduct("Товар успешно добавлен!");
     }
 
     @Tag("Task_3")
     @Test
-    @Description("Войти в админку и отредактировать товар. Выйти на список товаров и проверить, что изменения применились.")
+    @DisplayName("Войти в админку и отредактировать товар. Выйти на список товаров и проверить, что изменения применились.")
     void modifyProduct() {
-        //логирование через админа
-        loginAsAdmin();
-        //проверка, что находимся на странице админа
-        $("h1")
-                .as("открыта не страница администрирования")
-                .shouldHave(exactText("SmartShop Admin"));
-        //добавление нового товара
-        $("input[id='n-name']").sendKeys(productName);
-        $("input[id='n-price']").sendKeys(String.valueOf(productPrice));
-        $("button[id='add-btn']").click();
-        //получим id для удаления
-        id = $x(String.format("//tr[td/input[@value='%s']]/td[1]", productName)).getText();
-        System.out.println("id = " + id);
-        //редактирование товара
-        $(String.format("input[id='nm-%s']", id)).setValue(UI_CONFIG.productName());
-        $(String.format("input[id='pr-%s']", id)).setValue(UI_CONFIG.productPrice());
-        $(String.format("button[data-action='update'][data-id='%s']", id)).click();
-        //проверка изменений
-        $(String.format("input[id='nm-%s']", id))
-                .as("Имя не изменено")
-                .shouldHave(value(UI_CONFIG.productName()));
-
-        $(String.format("input[id='pr-%s']", id))
-                .as("Цена не изменена")
-                .shouldHave(value(UI_CONFIG.productPrice()));
+        mainPage
+                .check()
+                .hasHeaderMainPage("SmartShop")
+                .page()
+                .goToSignInPage();
+        signInPage
+                .hasHeader("Please sign in")
+                .authAdmin(BASE_CONFIG.adminLogin(), BASE_CONFIG.adminPassword());
+        adminPage
+                .check()
+                .hasHeader("SmartShop Admin");
+        id = adminPage
+                .createNewProduct(productName, String.valueOf(productPrice));
+        adminPage
+                .check()
+                .hasAddProduct(productName)
+                .page()
+                .modifyProduct(id, UI_CONFIG.productName(), UI_CONFIG.productPrice())
+                .check()
+                .hasFieldProductName(UI_CONFIG.productName())
+                .hasFieldProductPrice(UI_CONFIG.productPrice())
+                .page()
+                .goToMainPage();
+        mainPage
+                .isModifyProduct(UI_CONFIG.productName(), UI_CONFIG.productPrice());
     }
 }

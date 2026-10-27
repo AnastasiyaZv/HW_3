@@ -18,7 +18,8 @@ dependencies {
     implementation("org.assertj:assertj-core:3.27.7")
 
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.22.1")
-    testImplementation("com.codeborne:selenide:7.18.1")
+    implementation("com.codeborne:selenide:7.18.1")
+    implementation("org.projectlombok:lombok-maven-plugin:1.18.20.0")
 
     //конфигурация
     implementation("org.aeonbits.owner:owner:1.0.12")
@@ -57,6 +58,13 @@ tasks.register<Test>("Task_4") {
     description = "Запуск тестов с пометкой Task_4 для темы 7"
     useJUnitPlatform{
         includeTags("Task_4")
+    }
+}
+tasks.register<Test>("Task_5") {
+    group = "autotests"
+    description = "Запуск тестов с пометкой Task_5 для темы 9 PageObject"
+    useJUnitPlatform{
+        includeTags("Task_5")
     }
 }
 

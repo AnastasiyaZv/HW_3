@@ -85,6 +85,19 @@ public class DeleteTests {
                 .hasStatusCode(404);
     }
 
+    @Test
+    @Description("Удаление товаров")
+    void delete(){
+        for (int i = 700; i < 740; i++) {
+            Response response = given()
+                    .spec(requestSpecDelete)
+                    .pathParam("id", i)
+                    .when()
+                    .delete();
+
+        }
+    }
+
     public record RequestCreate(String name, Integer price) {
     }
 }
