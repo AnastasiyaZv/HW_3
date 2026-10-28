@@ -2,6 +2,9 @@ package ui_selenide_tests;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.Step;
+import io.qameta.allure.selenide.AllureSelenide;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
@@ -35,12 +38,19 @@ public class BasketPageTests {
     public static void beforeAll() {
         Configuration.baseUrl = BASE_CONFIG.baseUrl();
         Configuration.timeout = UI_CONFIG.timeout();
+        SelenideLogger.addListener("AllureSelenide",
+                new AllureSelenide()
+                        .includeSelenideSteps(true)
+                        .screenshots(true)
+                        .savePageSource(true)
+        );
 
         requestSpecPost = new Specifications().requestSpecPost();
         requestSpecDelete = new Specifications().requestSpecDelete();
     }
 
     @BeforeEach
+    @Step("Предусловие. Открыть страницу 'Витрина'.")
     public void beforeEach() {
         open("/");
         //печать параметров конфигурации
@@ -48,6 +58,7 @@ public class BasketPageTests {
     }
 
     @AfterEach
+    @Step("Постусловие. Удалить созданные товары.")
     void afterEach() {
         if (id != null) {
             Response response = given()

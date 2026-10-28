@@ -1,6 +1,7 @@
 package ru.stepup.pages;
 
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.exactValue;
 import static com.codeborne.selenide.Condition.visible;
@@ -25,6 +26,7 @@ public class AdminPage {
     private SelenideElement cardProductButtonSafe;
     private String productId;
 
+    @Step("Администрирование. Создать новый продукт с наименованием {name} и ценой {price}")
     public String createNewProduct(String name, String price) {
         //заполняем поля формы "Новый товар"
         nameNewProductForm
@@ -44,6 +46,7 @@ public class AdminPage {
         return productId;
     }
 
+    @Step("Администрирование. Изменить наименование, цену продукта и нажать кнопку [Сохранить].")
     public AdminPage modifyProduct(String id, String name, String price) {
         cardProductName = $(String.format(CARD_PRODUCT_NAME_CSS, id));
         cardProductPrice = $(String.format(CARD_PRODUCT_PRICE_CSS, id));
@@ -61,6 +64,7 @@ public class AdminPage {
         return this;
     }
 
+    @Step("Администрирование. Переход на страницу 'Витрина' по ссылке 'Вернуться на сайт'.")
     public AdminPage goToMainPage() {
         returnToWebsiteButton
                 .shouldBe(visible)

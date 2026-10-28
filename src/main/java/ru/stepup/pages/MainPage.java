@@ -1,6 +1,7 @@
 package ru.stepup.pages;
 
 import com.codeborne.selenide.*;
+import io.qameta.allure.Step;
 import org.openqa.selenium.Alert;
 import ru.stepup.tools.CollectCardProduct;
 import ru.stepup.tools.CreateProducts;
@@ -13,7 +14,6 @@ import static com.codeborne.selenide.CollectionCondition.texts;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static org.assertj.core.api.Assertions.assertThat;
-//import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class MainPage {
 
@@ -33,18 +33,19 @@ public class MainPage {
     private List<String> idProducts = new ArrayList<>();
     private String randomName;
 
+    @Step("Витрина. Обновить страницу 'Витрина'.")
     public MainPage updateMainPage() {
         Selenide.refresh();
         return this;
     }
 
-    //создаем товары
+    @Step("Витрина. Создать товары в количестве {count} через API.")
     public List<String> createProducts(int count) {
         idProducts = new CreateProducts().addProducts(count);
         return idProducts;
     }
 
-    //добавляем товары в корзину по id
+    @Step("Витрина. Добавить товары в корзину по id: {idProducts}.")
     public MainPage addProductsInBasket(List<String> idProducts) {
         for (String el : idProducts) {
             $x(String.format(IN_BASKET_BUTTON_BY_ID_XPATH, el)).click();
@@ -52,6 +53,7 @@ public class MainPage {
         return this;
     }
 
+    @Step("Витрина. Посчитать общую сумму товаров, добавленных в корзину по id: {idProducts}.")
     public int totalAmountAddProducts(List<String> idProducts) {
         int sum = 0;
         for (String el : idProducts) {
@@ -61,6 +63,7 @@ public class MainPage {
         return sum;
     }
 
+    @Step("Витрина. Выбрать рандомно один товар из списка.")
     public String selectRandomName() {
         valueNameCardProducts = new CollectCardProduct().getCardProductByAttribute(cardProducts, "data-name");
         System.out.println("!!! valueNameCardProducts!!! = " + valueNameCardProducts);
@@ -69,7 +72,7 @@ public class MainPage {
         return randomName;
     }
 
-    //добавляем рандомный товар с витрины в корзину
+    @Step("Витрина. Добавить товар в корзину по кнопке [В корзину] на карточке продукта.")
     public MainPage addProductInBasket(String name) {
         $x(String.format(IN_BASKET_BUTTON_BY_NAME_XPATH, name))
                 .shouldBe(visible)
@@ -77,17 +80,20 @@ public class MainPage {
         return this;
     }
 
+    @Step("Витрина. Перейти на страницу 'Корзина' по кнопке [Корзина].")
     public MainPage goToBasket() {
         basketButton.click();
         return this;
     }
 
+    @Step("Витрина. Перейти на страницу 'Авторизация' по кнопке [Администрирование].")
     public void goToSignInPage() {
         administrationButton
                 .shouldBe(visible)
                 .click();
     }
 
+    @Step("Витрина. Добавить товар в корзину с помощью dragAndDrop.")
     public MainPage dragAndDropProductInBasket(String productName) {
         $(String.format(CARD_PRODUCT_BY_NAME_CSS, productName))
                 .shouldBe(visible)
@@ -95,6 +101,7 @@ public class MainPage {
         return this;
     }
 
+    @Step("Витрина. Проверка, что наименование и цена товара изменены.")
     public void isModifyProduct(String productName, String productPrice) {
         List<String> cardsProductsByName = new CollectCardProduct().getCardProductByAttribute(cardProducts, "data-name");
         List<String> cardsProductsByPrice = new CollectCardProduct().getCardProductByAttribute(cardProducts, "data-price");
@@ -120,6 +127,7 @@ public class MainPage {
         private final ElementsCollection notification = $$("div[class='toast']");
         private final ElementsCollection itemProducts = $$("div>b");
 
+        @Step("Корзина. Проверка, что открыта страница 'Корзина'.")
         public Basket hasHeaderBasket(String expectedHeader) {
             headerBasket
                     .as(String.format("Открыта не страница %s", expectedHeader))
@@ -127,15 +135,15 @@ public class MainPage {
             return this;
         }
 
-        //собираем товары в корзине в массив и проверяем добавленный товар
+        @Step("Корзина. Проверка, что товар с наименованием '{expectedName}' имеется в корзине.")
         public Basket hasAddProductInBasket(String expectedName) {
-
             itemProducts
                     .as("Добавленный товар отсутствует в корзине")
                     .shouldHave(texts(expectedName));
             return this;
         }
 
+        @Step("Корзина. Оформить заказ по кнопке [Оформить заказ]")
         public Basket arrangeOrder() {
             arrangeOrderButton
                     .shouldBe(visible)
@@ -143,6 +151,7 @@ public class MainPage {
             return this;
         }
 
+        @Step("Корзина. Проверка, что появилось сообщение '...Денег не хватает!'.")
         public Basket hasAlert() {
             Alert alert = Selenide.switchTo().alert();
             System.out.println("!!! текст алерта = " + alert.getText());
@@ -153,6 +162,7 @@ public class MainPage {
             return this;
         }
 
+        @Step("Корзина. Проверка, что появилась нотификация 'expectedNotification'.")
         public Basket hasNotification(String expectedNotification) {
             notification
                     .as(String.format("Нотификация '%s' не найдена", expectedNotification))
@@ -160,6 +170,8 @@ public class MainPage {
             return this;
         }
 
+        @Step("Корзина. Проверка, что фактическая сумма товаров" +
+                " соответствует ожидаемому значению {expectedAmount}.")
         public Basket hasAmounBasket(int expectedAmount) {
             amountBasket
                     .as(String.format("Ожидаемая сумма товаров %d не соответствует действительной %s",
@@ -168,6 +180,7 @@ public class MainPage {
             return this;
         }
 
+        @Step("Корзина. Удалить товар по кнопке [Х].")
         public Basket deletedProductFromBasket(List<String> idProducts) {
             for (String el : idProducts) {
                 $(String.format(DELETE_PRODUCT_FROM_BASKET_CSS, el))
@@ -177,6 +190,7 @@ public class MainPage {
             return this;
         }
 
+        @Step("Корзина. Проверка, что товар не отображается")
         public Basket hasNotProductInBasket(List<String> idProducts) {
             for (String el : idProducts) {
                 $(String.format(CARD_PRODUCT_BY_NAME_CSS, el))

@@ -1,10 +1,13 @@
 package ru.stepup.tools;
 
+import io.qameta.allure.Step;
+
 import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.config.Config.UI_CONFIG;
 
 public class PrintConfig {
-    //печать параметров конфигурации
+
+    @Step("Дополнительно. Печать конфигурации.")
     public void printConfig() {
         System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
         System.out.println("Browser timeout: " + UI_CONFIG.timeout());

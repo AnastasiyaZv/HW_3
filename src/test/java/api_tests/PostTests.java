@@ -1,12 +1,14 @@
 package api_tests;
 
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import jdk.jfr.Description;
 import org.junit.jupiter.api.*;
 import ru.stepup.assertions.BaseApiAssert;
 import ru.stepup.specifications.Specifications;
 
+import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
@@ -28,17 +30,21 @@ public class PostTests {
     }
 
     @BeforeEach
+    @Step("Предусловие. Определить параметры для создания товара и создать товар.")
     void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
 
         System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
 
-        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
-                productName, productPrice);
+        Allure.addAttachment("Browser baseUrl: ", String.valueOf(BASE_CONFIG.baseUrl()));
+        Allure.addAttachment("Наименование продукта", productName);
+        Allure.addAttachment("Цена продукта", String.valueOf(productPrice));
+        Allure.addAttachment("Создан продукт с id", String.valueOf(id));
     }
 
     @AfterEach
+    @Step("Постусловие. Удалить товары через API.")
     void afterEach() {
         if (id != null) {
             System.out.println("!!! Удаляем товар с id = " + id);
@@ -55,25 +61,28 @@ public class PostTests {
 
     @Tag("Positive")
     @Test
-    @Description("Проверка статус кода 200")
+    @DisplayName("Проверка статус кода 200")
+    @Step("Создать товар. Получить код 200")
     void getStatusCode200ForPost() {
+        Allure.step("Создание товара с наименованием " + productName + " и ценой "+ productPrice);
         Response response = given()
                 .spec(requestSpecPost)
                 .body(new RequestCreate(productName, productPrice))
                 .when()
                 .post();
 
-        BaseApiAssert
-                .assertThat(response)
-                .hasStatusCode(200)
-                .hasBodyField("data.id");
+            BaseApiAssert
+                    .assertThat(response)
+                    .hasStatusCode(200)
+                    .hasBodyField("data.id");
 
         id = response.jsonPath().getObject("data.id", Integer.class);
     }
 
     @Tag("Negative")
     @Test
-    @Description("Проверка статус кода 400")
+    @DisplayName("Проверка статус кода 400")
+    @Step("Создать товар. Получить код 400")
     void getStatusCode400ForPost() {
         Response response = given()
                 .spec(requestSpecPost)

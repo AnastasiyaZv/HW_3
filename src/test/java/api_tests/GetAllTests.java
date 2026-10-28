@@ -1,5 +1,7 @@
 package api_tests;
 
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
@@ -33,14 +35,12 @@ public class GetAllTests {
     }
 
     @BeforeEach
+    @Step("Предусловие. Определить параметры для создания товара и создать товар.")
     void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
 
         System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
-
-        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
-                productName, productPrice);
 
         id = given()
                 .spec(requestSpecPost)
@@ -53,10 +53,14 @@ public class GetAllTests {
                 .jsonPath()
                 .getObject("data.id", Integer.class);
 
-        System.out.println("!!! Создаем товар с id = " + id);
+        Allure.addAttachment("Browser baseUrl: ", String.valueOf(BASE_CONFIG.baseUrl()));
+        Allure.addAttachment("Наименование продукта", productName);
+        Allure.addAttachment("Цена продукта", String.valueOf(productPrice));
+        Allure.addAttachment("Создан продукт с id", String.valueOf(id));
     }
 
     @AfterEach
+    @Step("Постусловие. Удалить товары через API.")
     void afterEach() {
         if (id != null) {
             System.out.println("!!! Удаляем товар с id = " + id);
@@ -72,12 +76,13 @@ public class GetAllTests {
     }
 
     @Test
-    @Description("Проверка статус кода 200 и тело ответа пустое через given().when().then()")
+    @DisplayName("Проверка статус кода 200 и тело ответа пустое через given().when().then()")
+    @Step("Получить список товаров. Получить код 200")
     void statusCode200AndBodyIsNullTest() {
         given()
                 .baseUri("http://localhost:8080")
                 .queryParam("page", 1)
-                .queryParam("size", 10)
+                .queryParam("size", 1)
                 .log().all()
                 .when()
                 .get("/goods/list")
@@ -88,7 +93,8 @@ public class GetAllTests {
     }
 
     @Test
-    @Description("Проверка статус кода 400 и тело ответа пустое через RequestSpecification")
+    @DisplayName("Проверка статус кода 400 и тело ответа пустое через RequestSpecification")
+    @Step("Получить список товаров. Получить код 400")
     void statusCode400AndBodyIsNullTest() {
         given()
                 .spec(requestSpecGetAll)
@@ -103,12 +109,13 @@ public class GetAllTests {
     }
 
     @Test
-    @Description("Создали 1 продукт и получили его в списке через REST Assured")
+    @DisplayName("Создали 1 продукт и получили его в списке через REST Assured")
+    @Step("Создать товар. Получить товар")
     void getProductWithRestAssured() {
         given()
                 .spec(requestSpecGetAll)
-                .queryParam("page", 3)
-                .queryParam("size", 3)
+                .queryParam("page", 1)
+                .queryParam("size", 1)
                 .when()
                 .get()
                 .then()
@@ -118,13 +125,14 @@ public class GetAllTests {
     }
 
     @Test
-    @Description("Создали 1 продукт и получили его в списке через AssertJ")
+    @DisplayName("Создали 1 продукт и получили его в списке через AssertJ")
+    @Step("Создать товар. Получить товар")
     void getProductWithAssertJ() {
 
         Response response = given()
                 .spec(requestSpecGetAll)
-                .queryParam("page", 3)
-                .queryParam("size", 3)
+                .queryParam("page", 1)
+                .queryParam("size", 1)
                 .when()
                 .get();
 

@@ -1,6 +1,7 @@
 package ru.stepup.pages;
 
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Selenide.$;
@@ -13,6 +14,7 @@ public class SignInPage {
     private final SelenideElement headerSignInPage = $("h2");
     private final SelenideElement alert = $("div[class='alert alert-danger']");
 
+    @Step("Авторизация. Заполнить форму авторизации и нажать кнопку [Sign in].")
     public SignInPage authAdmin(String login, String pass) {
         loginForm.sendKeys(login);
         passwordForm.sendKeys(pass);
@@ -20,6 +22,7 @@ public class SignInPage {
         return this;
     }
 
+    @Step("Авторизация. Проверка, что нельзя залогиниться с неверным логин/пароль")
     public SignInPage assertNotAuth() {
         alert
                 .as("Залогинились под админом")
@@ -27,6 +30,7 @@ public class SignInPage {
         return this;
     }
 
+    @Step("Авторизация. Проверка, что открыта страница 'Авторизация'.")
     public SignInPage hasHeader(String expectedHeader) {
         headerSignInPage
                 .as("Открыта не страница авторизации админа")

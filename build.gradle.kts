@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("io.qameta.allure") version "2.11.2"
 }
 
 group = "ru.stepup"
@@ -7,6 +8,10 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+}
+
+allure {
+    version.set("2.29.0")
 }
 
 dependencies {
@@ -19,10 +24,14 @@ dependencies {
 
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.22.1")
     implementation("com.codeborne:selenide:7.18.1")
-    implementation("org.projectlombok:lombok-maven-plugin:1.18.20.0")
 
     //конфигурация
     implementation("org.aeonbits.owner:owner:1.0.12")
+
+    //Allure
+    testImplementation("io.qameta.allure:allure-selenide:2.29.0")
+    implementation("io.qameta.allure:allure-rest-assured:2.27.0")
+    runtimeOnly("org.aspectj:aspectjweaver:1.9.25.1")
 }
 
 tasks.test {

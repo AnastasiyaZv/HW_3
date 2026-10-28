@@ -1,12 +1,11 @@
 package api_tests;
 
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import ru.stepup.assertions.BaseApiAssert;
 import ru.stepup.specifications.Specifications;
 
@@ -31,14 +30,12 @@ public class DeleteTests {
     }
 
     @BeforeEach
+    @Step("Предусловие. Определить параметры для создания товара и создать товар.")
     void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
 
         System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
-
-        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
-                productName, productPrice);
 
         id = given()
                 .spec(requestSpecPost)
@@ -51,14 +48,17 @@ public class DeleteTests {
                 .jsonPath()
                 .getObject("data.id", Integer.class);
 
-        System.out.println("!!! Создаем товар с id = " + id);
+        Allure.addAttachment("Browser baseUrl: ", String.valueOf(BASE_CONFIG.baseUrl()));
+        Allure.addAttachment("Наименование продукта", productName);
+        Allure.addAttachment("Цена продукта", String.valueOf(productPrice));
+        Allure.addAttachment("Создан продукт с id", String.valueOf(id));
     }
 
     @Tag("Positive")
     @Test
-    @Description("Проверка статус кода 200")
+    @DisplayName("Проверка статус кода 200")
+    @Step("Удалить товар. Получить код 200")
     void getStatusCode200ForDelete() {
-
         Response response = given()
                 .spec(requestSpecDelete)
                 .pathParam("id", id)
@@ -72,7 +72,8 @@ public class DeleteTests {
 
     @Tag("Negative")
     @Test
-    @Description("Проверка статус кода 404")
+    @DisplayName("Проверка статус кода 404")
+    @Step("Удалить товар. Получить код 404")
     void getStatusCode404ForDelete() {
         Response response = given()
                 .spec(requestSpecDelete)
@@ -83,19 +84,6 @@ public class DeleteTests {
         BaseApiAssert
                 .assertThat(response)
                 .hasStatusCode(404);
-    }
-
-    @Test
-    @Description("Удаление товаров")
-    void delete(){
-        for (int i = 700; i < 740; i++) {
-            Response response = given()
-                    .spec(requestSpecDelete)
-                    .pathParam("id", i)
-                    .when()
-                    .delete();
-
-        }
     }
 
     public record RequestCreate(String name, Integer price) {

@@ -1,5 +1,7 @@
 package api_tests;
 
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
@@ -30,14 +32,12 @@ public class GetTests {
     }
 
     @BeforeEach
+    @Step("Предусловие. Определить параметры для создания товара и создать товар.")
     void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
 
         System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
-
-        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
-                productName, productPrice);
 
         id = given()
                 .spec(requestSpecPost)
@@ -50,10 +50,14 @@ public class GetTests {
                 .jsonPath()
                 .getObject("data.id", Integer.class);
 
-        System.out.println("!!! Создаем товар с id = " + id);
+        Allure.addAttachment("Browser baseUrl: ", String.valueOf(BASE_CONFIG.baseUrl()));
+        Allure.addAttachment("Наименование продукта", productName);
+        Allure.addAttachment("Цена продукта", String.valueOf(productPrice));
+        Allure.addAttachment("Создан продукт с id", String.valueOf(id));
     }
 
     @AfterEach
+    @Step("Постусловие. Удалить товары через API.")
     void afterEach() {
         if (id != null) {
             System.out.println("!!! Удаляем товар с id = " + id);
@@ -70,7 +74,8 @@ public class GetTests {
 
     @Tag("Positive")
     @Test
-    @Description("Проверка статус кода 200")
+    @DisplayName("Проверка статус кода 200")
+    @Step("Получить товар. Получить код 200")
     void getStatusCode200ForGet() {
         Response response = given()
                 .spec(requestSpecGet)
@@ -86,7 +91,8 @@ public class GetTests {
 
     @Tag("Negative")
     @Test
-    @Description("Проверка статус кода 404")
+    @DisplayName("Проверка статус кода 404")
+    @Step("Получить товар. Получить код 404")
     void getStatusCode404ForGet() {
         Response response = given()
                 .spec(requestSpecGet)

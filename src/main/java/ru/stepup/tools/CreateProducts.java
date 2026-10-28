@@ -1,5 +1,6 @@
 package ru.stepup.tools;
 
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import ru.stepup.specifications.Specifications;
@@ -19,6 +20,7 @@ public class CreateProducts {
     private int productPrice;
     private Integer idProduct;
 
+    @Step("Дополнительно. Создать определенное количество товаров через API.")
     public List<String> addProducts(int count) {
         for (int i = 0; i < count; i++) {
             //создаем параметры для продукта

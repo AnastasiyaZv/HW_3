@@ -2,6 +2,7 @@ package ru.stepup.tools;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ public class CollectCardProduct {
 
     private final List<String> valueAttributeCardProducts = new ArrayList<>();
 
+    @Step("Дополнительно. Собрать карточки товаров в массив")
     //собираем карточки товаров в массив
     public List<String> getCardProductByAttribute(ElementsCollection cardProducts, String attribute) {
         for (SelenideElement element : cardProducts) {

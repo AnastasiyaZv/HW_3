@@ -1,5 +1,6 @@
 package ru.stepup.pages;
 
+import io.qameta.allure.Step;
 import org.assertj.core.api.AbstractAssert;
 
 import static com.codeborne.selenide.Condition.text;
@@ -13,7 +14,7 @@ public class MainPageAsserts extends AbstractAssert<MainPageAsserts, MainPage> {
         super(actual, MainPageAsserts.class);
     }
 
-    //проверяем, что товар добавлен на кнопке "Корзина"
+    @Step("Витрина. Проверка, что товар добавлен на кнопке [В корзину].")
     public MainPageAsserts hasBasketButtonCount(String count) {
         actual.basketButtonCount
                 .as("Товар в корзине отсутствует")
@@ -21,6 +22,7 @@ public class MainPageAsserts extends AbstractAssert<MainPageAsserts, MainPage> {
         return this;
     }
 
+    @Step("Витрина. Проверка, что открыта страница 'Витрина'.")
     public MainPageAsserts hasHeaderMainPage(String expectedHeader) {
         actual.headerMainPage
                 .as(String.format("Открыта не страница %s", expectedHeader))
@@ -28,6 +30,7 @@ public class MainPageAsserts extends AbstractAssert<MainPageAsserts, MainPage> {
         return this;
     }
 
+    @Step("Витрина. Проверка, что товар с наименованием '{name}' отображается." )
     public MainPageAsserts productIsVisible(String name) {
         actual.nameProduct = $(String.format(NAME_PRODUCT_CSS, name));
         actual.nameProduct

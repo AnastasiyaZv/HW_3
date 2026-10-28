@@ -1,5 +1,7 @@
 package api_tests;
 
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
@@ -30,6 +32,7 @@ public class PatchTests {
     }
 
     @BeforeEach
+    @Step("Предусловие. Определить параметры для создания товара и создать товар.")
     void beforeEach() {
         productName = createUniqueProductName();
         productPrice = randomInt(1, 100);
@@ -37,9 +40,6 @@ public class PatchTests {
         System.out.println("Browser baseUrl: " + BASE_CONFIG.baseUrl());
         System.out.println("Start productName: " + API_CONFIG.productName());
         System.out.println("Start productPrice: " + API_CONFIG.productPrice());
-
-        System.out.printf("!!! Создаем переменные для теста productName = %s,  productPrice = %s%n",
-                productName, productPrice);
 
         id = given()
                 .spec(requestSpecPost)
@@ -52,10 +52,14 @@ public class PatchTests {
                 .jsonPath()
                 .getObject("data.id", Integer.class);
 
-        System.out.println("!!! Создаем товар с id = " + id);
+        Allure.addAttachment("Browser baseUrl: ", String.valueOf(BASE_CONFIG.baseUrl()));
+        Allure.addAttachment("Наименование продукта", productName);
+        Allure.addAttachment("Цена продукта", String.valueOf(productPrice));
+        Allure.addAttachment("Создан продукт с id", String.valueOf(id));
     }
 
     @AfterEach
+    @Step("Постусловие. Удалить товары через API.")
     void afterEach() {
         if (id != null) {
             System.out.println("!!! Удаляем товар с id = " + id);
@@ -72,7 +76,8 @@ public class PatchTests {
 
     @Tag("Positive")
     @Test
-    @Description("Проверка статус кода 200")
+    @DisplayName("Проверка статус кода 200")
+    @Step("Изменить товар. Получить код 200")
     void getStatusCode200ForPatch() {
         Response response = given()
                 .spec(requestSpecPatch)
@@ -88,7 +93,8 @@ public class PatchTests {
 
     @Tag("Negative")
     @Test
-    @Description("Проверка статус кода 400")
+    @DisplayName("Проверка статус кода 400")
+    @Step("Изменить товар. Получить код 400")
     void getStatusCode400ForPatch() {
         Response response = given()
                 .spec(requestSpecPatch)
@@ -104,7 +110,8 @@ public class PatchTests {
 
     @Tag("Negative")
     @Test
-    @Description("Проверка статус кода 404")
+    @DisplayName("Проверка статус кода 404")
+    @Step("Изменить товар. Получить код 404")
     void getStatusCode404ForPatch() {
         Response response = given()
                 .spec(requestSpecPatch)

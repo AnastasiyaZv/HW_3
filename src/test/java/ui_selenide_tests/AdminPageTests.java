@@ -2,6 +2,10 @@ package ui_selenide_tests;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
+import io.qameta.allure.selenide.AllureSelenide;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
@@ -35,11 +39,18 @@ public class AdminPageTests {
     public static void beforeAll() {
         Configuration.baseUrl = BASE_CONFIG.baseUrl();
         Configuration.timeout = UI_CONFIG.timeout();
+        SelenideLogger.addListener("AllureSelenide",
+                new AllureSelenide()
+                        .includeSelenideSteps(true)
+                        .screenshots(true)
+                        .savePageSource(true)
+        );
 
         requestSpecDelete = new Specifications().requestSpecDelete();
     }
 
     @BeforeEach
+    @Step("Предусловие. Открыть страницу 'Витрина'.")
     public void beforeEach() {
         open("/");
         //печать параметров конфигурации
@@ -52,6 +63,7 @@ public class AdminPageTests {
     }
 
     @AfterEach
+    @Step("Постусловие. Удалить созданные товары.")
     void afterEach() {
         System.out.println("!!! id = " + id);
         //удаление созданного товара
@@ -69,7 +81,8 @@ public class AdminPageTests {
 
     @Tag("Task_2")
     @Test
-    @DisplayName("Добавить товар через админку, выйти на витрину и проверить, что товар отображается")
+    @DisplayName("Проверка, что созданный товар на странице 'Администрирования' отображается на странице 'Витрина'.")
+    @Description("Добавить товар через админку, выйти на витрину и проверить, что товар отображается")
     void addProduct() {
         mainPage
                 .check()
