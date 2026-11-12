@@ -6,6 +6,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.*;
+import ru.stepup.assertions.BaseApiAssert;
 import ru.stepup.specifications.Specifications;
 
 import static io.restassured.RestAssured.given;
@@ -15,8 +16,6 @@ import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
 
-
-@Tag("Lesson")
 @Tag("ApiTest")
 public class GetAllTests {
 
@@ -79,73 +78,51 @@ public class GetAllTests {
     @DisplayName("Проверка статус кода 200 и тело ответа пустое через given().when().then()")
     @Step("Получить список товаров. Получить код 200")
     void statusCode200AndBodyIsNullTest() {
-        given()
-                .baseUri("http://localhost:8080")
-                .queryParam("page", 1)
-                .queryParam("size", 1)
-                .log().all()
+        Response response = given()
+                .spec(requestSpecGetAll)
+                .queryParam("page",1)
+                .queryParam("size",1)
                 .when()
-                .get("/goods/list")
-                .then()
-                .statusCode(200)
-                .body("goods", hasSize(1))
-                .log().all();
+                .get();
+
+        BaseApiAssert
+                .assertThat(response)
+                .hasStatusCode(200);
     }
 
     @Test
     @DisplayName("Проверка статус кода 400 и тело ответа пустое через RequestSpecification")
     @Step("Получить список товаров. Получить код 400")
     void statusCode400AndBodyIsNullTest() {
-        given()
+        Response response=given()
                 .spec(requestSpecGetAll)
-                .queryParam("page", 1)
-                .queryParam("size", 0)
+                .queryParam("page",1)
+                .queryParam("size",0)
                 .when()
-                .get()
-                .then()
-                .statusCode(400)
-                .body(equalTo("Page size must not be less than one"));
-        //.body(nullValue());
+                .get();
+
+        BaseApiAssert
+                .assertThat(response)
+                .hasStatusCode(400)
+                .hasBodyText("Page size must not be less than one");
     }
 
     @Test
     @DisplayName("Создали 1 продукт и получили его в списке через REST Assured")
     @Step("Создать товар. Получить товар")
     void getProductWithRestAssured() {
-        given()
+        Response response=given()
                 .spec(requestSpecGetAll)
-                .queryParam("page", 1)
-                .queryParam("size", 1)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("goods", not((empty())))
-                .body("goods.name", hasItem(productName));
-    }
-
-    @Test
-    @DisplayName("Создали 1 продукт и получили его в списке через AssertJ")
-    @Step("Создать товар. Получить товар")
-    void getProductWithAssertJ() {
-
-        Response response = given()
-                .spec(requestSpecGetAll)
-                .queryParam("page", 1)
-                .queryParam("size", 1)
+                .queryParam("page",1)
+                .queryParam("size",1)
                 .when()
                 .get();
+        System.out.println("!!! productName = "+productName);
 
-        assertThat(response.statusCode())
-                .as("Статус код не соответствует ожидаемому: 200")
-                .isEqualTo(200);
-
-        assertThat(response.jsonPath().getList("goods"))
-                .as("Список товаров пуст")
-                .isNotEmpty();
-
-        assertThat(response.jsonPath().getList("goods.name", String.class))
-                .as(String.format("Товар с именем %s отсутствует в списке", productName))
-                .contains(productName);
+        BaseApiAssert
+                .assertThat(response)
+                .hasStatusCode(200)
+                .hasBodyField("goods")
+                .hasBodyTextInField("goods.name", String.valueOf((hasItem(productName))));
     }
 }

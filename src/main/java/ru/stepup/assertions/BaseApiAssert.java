@@ -2,9 +2,12 @@ package ru.stepup.assertions;
 
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
+import io.restassured.internal.common.assertion.Assertion;
 import io.restassured.response.Response;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
+
+import java.util.List;
 
 public class BaseApiAssert extends AbstractAssert<BaseApiAssert, Response> {
 
@@ -35,6 +38,30 @@ public class BaseApiAssert extends AbstractAssert<BaseApiAssert, Response> {
         Assertions.assertThat(actual.jsonPath().getString(path))
                 .as(String.format("Поле %s не содержится в ответе", path))
                 .isNotNull();
+        return this;
+    }
+
+    @Step("Проверка, что тело содержит текст")
+    public BaseApiAssert hasBodyText(String expectedText){
+
+        String actualText = actual.getBody().asString();
+        Allure.addAttachment("Ожидаемое значение", expectedText);
+        Allure.addAttachment("Фактическое значение", actualText);
+        System.out.println("!!! actual.body() = "+actualText);
+
+        Assertions.assertThat(actualText)
+                .as("Тело ответа")
+                .isEqualTo(expectedText);
+        return this;
+    }
+
+    @Step("Проверка что поле содержит значение")
+    public BaseApiAssert hasBodyTextInField(String field, String expectedText){
+
+        List<String> fieldValues = actual.jsonPath().getList(field);
+        Assertions.assertThat(fieldValues)
+                .as(String.format("Тег '%s': %s",field, fieldValues))
+                .contains(expectedText);
         return this;
     }
 }

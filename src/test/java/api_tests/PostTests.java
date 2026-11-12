@@ -8,7 +8,6 @@ import org.junit.jupiter.api.*;
 import ru.stepup.assertions.BaseApiAssert;
 import ru.stepup.specifications.Specifications;
 
-import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;

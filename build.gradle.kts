@@ -46,35 +46,19 @@ tasks.register<Test>("Task_1") {
     }
 }
 
-tasks.register<Test>("Task_2") {
+tasks.register<Test>("Run API Tests") {
     group = "autotests"
-    description = "Запуск тестов с пометкой Task_2 для задачи 2"
+    description = "Запуск тестов с пометкой ApiTest"
     useJUnitPlatform{
-        includeTags("Task_2")
+        includeTags("ApiTest")
     }
 }
 
-tasks.register<Test>("Task_3") {
+tasks.register<Test>("Run UI Tests") {
     group = "autotests"
-    description = "Запуск тестов с пометкой Task_3 для задачи 3"
+    description = "Запуск тестов с пометкой UITest"
     useJUnitPlatform{
-        includeTags("Task_3")
+        includeTags("UITest")
     }
 }
-
-tasks.register<Test>("Task_4") {
-    group = "autotests"
-    description = "Запуск тестов с пометкой Task_4 для темы 7"
-    useJUnitPlatform{
-        includeTags("Task_4")
-    }
-}
-tasks.register<Test>("Task_5") {
-    group = "autotests"
-    description = "Запуск тестов с пометкой Task_5 для темы 9 PageObject"
-    useJUnitPlatform{
-        includeTags("Task_5")
-    }
-}
-
 defaultTasks("test")

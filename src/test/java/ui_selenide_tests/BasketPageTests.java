@@ -22,7 +22,7 @@ import static io.restassured.RestAssured.given;
 import static ru.stepup.config.Config.BASE_CONFIG;
 import static ru.stepup.config.Config.UI_CONFIG;
 
-@Tag("Task_5")
+@Tag("UITest")
 public class BasketPageTests {
 
     private static RequestSpecification requestSpecPost;
@@ -102,6 +102,7 @@ public class BasketPageTests {
                 .page()
                 .goToBasket()
                 .new Basket()
+                .check()
                 .hasAddProductInBasket(randomName);
     }
 
@@ -159,9 +160,12 @@ public class BasketPageTests {
                 .hasBasketButtonCount("3")
                 .page()
                 .goToBasket()
-                .new Basket()
+                .check()
                 .hasHeaderBasket("Корзина SmartShop")
+                .page()
+                .new Basket()
                 .arrangeOrder()
+                .check()
                 .hasAlert();
     }
 
@@ -188,6 +192,7 @@ public class BasketPageTests {
                 .goToBasket()
                 .new Basket()
                 .arrangeOrder()
+                .check()
                 .hasNotification("Заказ принят в обработку!");
     }
 
@@ -208,6 +213,7 @@ public class BasketPageTests {
         mainPage
                 .goToBasket()
                 .new Basket()
+                .check()
                 .hasHeaderBasket("Корзина SmartShop")
                 .hasAmounBasket(sumTotal);
     }
@@ -234,7 +240,10 @@ public class BasketPageTests {
                 .page()
                 .goToBasket()
                 .new Basket()
+                .check()
                 .hasHeaderBasket("Корзина SmartShop")
+                .page()
+                .new Basket()
                 .deletedProductFromBasket(idProducts)
                 .hasNotProductInBasket(idProducts);
     }
@@ -262,6 +271,7 @@ public class BasketPageTests {
                 .page()
                 .goToBasket()
                 .new Basket()
+                .check()
                 .hasHeaderBasket("Корзина SmartShop")
                 .hasAddProductInBasket(randomName);
     }

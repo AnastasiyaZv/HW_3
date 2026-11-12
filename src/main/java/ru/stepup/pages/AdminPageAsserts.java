@@ -53,6 +53,6 @@ public class AdminPageAsserts extends AbstractAssert<AdminPageAsserts, AdminPage
     }
 
     public AdminPage page() {
-        return new AdminPage();
+        return actual;
     }
 }

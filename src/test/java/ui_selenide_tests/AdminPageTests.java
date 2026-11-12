@@ -22,7 +22,7 @@ import static ru.stepup.config.Config.UI_CONFIG;
 import static ru.stepup.data.RandomData.createUniqueProductName;
 import static ru.stepup.data.RandomData.randomInt;
 
-@Tag("Task_5")
+@Tag("UITest")
 public class AdminPageTests {
 
     private static RequestSpecification requestSpecDelete;

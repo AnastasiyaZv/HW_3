@@ -20,7 +20,7 @@ public class MainPage {
     final static String NAME_PRODUCT_CSS = "div[data-name='%s']";
     private final static String IN_BASKET_BUTTON_BY_NAME_XPATH = "//button[@data-action='add-to-cart' and @data-name='%s']";
     private final static String IN_BASKET_BUTTON_BY_ID_XPATH = "//button[@data-action='add-to-cart' and @data-id='%s']";
-    private final static String CARD_PRODUCT_BY_NAME_CSS = "div[data-name='%s']";
+    final static String CARD_PRODUCT_BY_NAME_CSS = "div[data-name='%s']";
     final SelenideElement headerMainPage = $("h1[id='main-title']");
     final SelenideElement basketButtonCount = $("span[id='cart-count']");
     private final SelenideElement administrationButton = $("a[href='/admin']");
@@ -32,6 +32,11 @@ public class MainPage {
     private List<String> valueNameCardProducts = new ArrayList<>();
     private List<String> idProducts = new ArrayList<>();
     private String randomName;
+
+    final SelenideElement headerBasket = $("h2");
+    final ElementsCollection itemProductsBasket = $$("div>b");
+    final SelenideElement amountBasket = $("span[id='total-price']");
+    final ElementsCollection notificationBasket = $$("div[class='toast']");
 
     @Step("Витрина. Обновить страницу 'Витрина'.")
     public MainPage updateMainPage() {
@@ -114,6 +119,7 @@ public class MainPage {
                 .contains(productPrice);
     }
 
+    @Step("Переход к проверке страница 'Витрина'.")
     public MainPageAsserts check() {
         return new MainPageAsserts(this);
     }
@@ -121,62 +127,13 @@ public class MainPage {
     public class Basket {
 
         private final static String DELETE_PRODUCT_FROM_BASKET_CSS = "div[id='cart-item-%s']>button[data-action='remove']";
-        private final SelenideElement headerBasket = $("h2");
         private final SelenideElement arrangeOrderButton = $("button[id='makeOrder']");
-        private final SelenideElement amountBasket = $("span[id='total-price']");
-        private final ElementsCollection notification = $$("div[class='toast']");
-        private final ElementsCollection itemProducts = $$("div>b");
-
-        @Step("Корзина. Проверка, что открыта страница 'Корзина'.")
-        public Basket hasHeaderBasket(String expectedHeader) {
-            headerBasket
-                    .as(String.format("Открыта не страница %s", expectedHeader))
-                    .shouldHave(text(expectedHeader));
-            return this;
-        }
-
-        @Step("Корзина. Проверка, что товар с наименованием '{expectedName}' имеется в корзине.")
-        public Basket hasAddProductInBasket(String expectedName) {
-            itemProducts
-                    .as("Добавленный товар отсутствует в корзине")
-                    .shouldHave(texts(expectedName));
-            return this;
-        }
 
         @Step("Корзина. Оформить заказ по кнопке [Оформить заказ]")
         public Basket arrangeOrder() {
             arrangeOrderButton
                     .shouldBe(visible)
                     .click();
-            return this;
-        }
-
-        @Step("Корзина. Проверка, что появилось сообщение '...Денег не хватает!'.")
-        public Basket hasAlert() {
-            Alert alert = Selenide.switchTo().alert();
-            System.out.println("!!! текст алерта = " + alert.getText());
-            assertThat(alert.getText())
-                    .as("Окно алерта не появилось")
-                    .contains("Денег не хватает!");
-            alert.accept();
-            return this;
-        }
-
-        @Step("Корзина. Проверка, что появилась нотификация 'expectedNotification'.")
-        public Basket hasNotification(String expectedNotification) {
-            notification
-                    .as(String.format("Нотификация '%s' не найдена", expectedNotification))
-                    .shouldHave(CollectionCondition.itemWithText(expectedNotification));
-            return this;
-        }
-
-        @Step("Корзина. Проверка, что фактическая сумма товаров" +
-                " соответствует ожидаемому значению {expectedAmount}.")
-        public Basket hasAmounBasket(int expectedAmount) {
-            amountBasket
-                    .as(String.format("Ожидаемая сумма товаров %d не соответствует действительной %s",
-                            expectedAmount, amountBasket.getText()))
-                    .shouldHave(exactText(String.valueOf(expectedAmount)));
             return this;
         }
 
@@ -198,6 +155,11 @@ public class MainPage {
                         .shouldNot(exist);
             }
             return this;
+        }
+
+        @Step("Переход к проверке страница 'Корзина'.")
+        public MainPageAsserts check(){
+            return MainPage.this.check();
         }
     }
 }

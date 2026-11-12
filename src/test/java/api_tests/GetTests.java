@@ -80,7 +80,6 @@ public class GetTests {
         Response response = given()
                 .spec(requestSpecGet)
                 .pathParam("id", id)
-                //.pathParam("id",id)
                 .when()
                 .get();
 
