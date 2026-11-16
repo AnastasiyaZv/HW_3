@@ -228,13 +228,10 @@ public class BasketPageTests {
                 .updateMainPage()
                 .check()
                 .hasHeaderMainPage("SmartShop");
-        randomName = mainPage
-                .selectRandomName();
         mainPage
                 .check()
                 .hasHeaderMainPage("SmartShop")
-                .page()
-                .addProductInBasket(randomName)
+                .page().addProductsInBasket(idProducts)
                 .check()
                 .hasBasketButtonCount("1")
                 .page()

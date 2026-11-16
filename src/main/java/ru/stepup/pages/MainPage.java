@@ -58,6 +58,7 @@ public class MainPage {
         return this;
     }
 
+
     @Step("Витрина. Посчитать общую сумму товаров, добавленных в корзину по id: {idProducts}.")
     public int totalAmountAddProducts(List<String> idProducts) {
         int sum = 0;
@@ -70,10 +71,16 @@ public class MainPage {
 
     @Step("Витрина. Выбрать рандомно один товар из списка.")
     public String selectRandomName() {
+        // Ждём, что на витрине есть хотя бы один товар
+        cardProducts.shouldHave(CollectionCondition.sizeGreaterThan(0));
+
         valueNameCardProducts = new CollectCardProduct().getCardProductByAttribute(cardProducts, "data-name");
-        System.out.println("!!! valueNameCardProducts!!! = " + valueNameCardProducts);
+
+        if (valueNameCardProducts.isEmpty()) {
+            throw new IllegalStateException(
+                    "Список наименований товаров пуст.");
+        }
         randomName = valueNameCardProducts.get(random.nextInt(valueNameCardProducts.size()));
-        System.out.println("!!! randomName in basket = " + randomName);
         return randomName;
     }
 
@@ -82,6 +89,7 @@ public class MainPage {
         $x(String.format(IN_BASKET_BUTTON_BY_NAME_XPATH, name))
                 .shouldBe(visible)
                 .click();
+        System.out.println("!!! добавлен продукт"+String.format(IN_BASKET_BUTTON_BY_NAME_XPATH, name));
         return this;
     }
 
@@ -108,6 +116,15 @@ public class MainPage {
 
     @Step("Витрина. Проверка, что наименование и цена товара изменены.")
     public void isModifyProduct(String productName, String productPrice) {
+        // Ждём, что на витрине есть товары
+        cardProducts.shouldHave(CollectionCondition.sizeGreaterThan(0));
+
+        // Ждём, что в data-name появилось новое имя
+        cardProducts.shouldHave(
+                CollectionCondition.anyMatch(
+                        "товар с именем " + productName,
+                        el -> productName.equals(el.getAttribute("data-name"))));
+
         List<String> cardsProductsByName = new CollectCardProduct().getCardProductByAttribute(cardProducts, "data-name");
         List<String> cardsProductsByPrice = new CollectCardProduct().getCardProductByAttribute(cardProducts, "data-price");
 
@@ -141,7 +158,7 @@ public class MainPage {
         public Basket deletedProductFromBasket(List<String> idProducts) {
             for (String el : idProducts) {
                 $(String.format(DELETE_PRODUCT_FROM_BASKET_CSS, el))
-                        .shouldBe(visible)
+                        .shouldBe(clickable)
                         .click();
             }
             return this;
